@@ -1,8 +1,8 @@
-# expo-router 58: Stack.Protected renders guarded routes as screens (flash + duplicate history)
+# expo-router 58: Stack.Protected renders guarded routes as screens (flash)
 
 Minimal reproduction for an expo-router SDK 58 regression in `Stack.Protected`. The same code on SDK 57 behaves correctly; see the `sdk-57` branch.
 
-Since [expo/expo#47744](https://github.com/expo/expo/pull/47744), a route whose guard is `false` stays registered in the navigator and renders a `<Redirect>`, which calls `router.replace`. In SDK 57 the guarded route was removed from the navigator. That change causes two visible problems.
+Since [expo/expo#47744](https://github.com/expo/expo/pull/47744), a route whose guard is `false` stays registered in the navigator and renders a `<Redirect>`, which calls `router.replace`. In SDK 57 the guarded route was removed from the navigator. That change causes an empty-screen flash when the guard changes.
 
 ## Setup
 
@@ -17,7 +17,7 @@ src/app/
 ├── _layout.tsx          # Stack: (public) guard={!session}, (app) guard={session}
 ├── (public)/
 │   ├── _layout.tsx
-│   └── index.tsx        # Sign in button, <Link href="/settings">
+│   └── index.tsx        # Sign in button
 └── (app)/
     ├── _layout.tsx
     ├── index.tsx        # Sign out button
@@ -33,22 +33,13 @@ npm install
 npx expo start
 ```
 
-## Case 1: guard turns false (or true) while the screen is shown
+## Steps
 
 1. Tap **Sign in**, then **Sign out**.
 
 **SDK 58:** the current screen goes empty for about 200ms, with only the root Stack header showing the route name `(app)`. Then `(public)` slides in like a forward push. Signing in does the same in reverse (an empty `(public)` screen, then `(app)` slides in).
 
 **SDK 57:** the screens swap directly, with no empty frame.
-
-## Case 2: navigating to a route that is already guarded
-
-1. While signed out, tap the **Settings** link (`/settings`, which only exists in `(app)`).
-2. Press back.
-
-**SDK 58:** the `(app)` layout mounts briefly, then redirects back to the current `(public)` page. The stack now contains that page twice, so back returns to the same page.
-
-**SDK 57:** the navigation does nothing, as the [protected routes blog post](https://expo.dev/blog/simplifying-auth-flows-with-protected-routes) describes ("the navigation fails silently").
 
 ## Recordings
 

@@ -1,5 +1,4 @@
 import { useSession } from "@/context/session";
-import { Link } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
@@ -11,10 +10,6 @@ export default function Index() {
         <Pressable accessibilityRole="button" onPress={login} style={styles.button}>
           <Text style={styles.buttonText}>Sign in</Text>
         </Pressable>
-
-        <Link href="/settings" style={styles.link}>
-          Settings
-        </Link>
       </View>
     </View>
   );
